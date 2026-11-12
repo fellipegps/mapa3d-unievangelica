@@ -1,0 +1,16 @@
+# Dependências instaladas pelo npm
+node_modules/
+
+# Arquivos gerados pelo build
+/dist/
+/campus-3d-preview.html
+
+# Configuração local
+.env
+.env.*
+!.env.example
+
+# Logs e arquivos do sistema
+*.log
+.DS_Store
+Thumbs.db

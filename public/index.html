@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#f8f8f1">
+    <meta name="description" content="Explore os blocos e o Ginásio Poliesportivo do campus Anápolis da UniEVANGÉLICA.">
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="./style.css">
+    <script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/controls/OrbitControls.js":"./vendor/OrbitControls.js"}}</script>
+    <title>Campus 3D · UniEVANGÉLICA</title>
+  </head>
+  <body>
+    <header class="masthead">
+      <div class="brand">
+        <span class="brand-icon" data-icon="map" aria-hidden="true"></span>
+        <div><strong>Campus 3D</strong><span>UniEVANGÉLICA <b>·</b> Anápolis, GO</span></div>
+      </div>
+      <button class="about-button" id="about-button" type="button"><span data-icon="info" aria-hidden="true"></span><span>Sobre o mapa</span></button>
+    </header>
+    <main class="workspace" id="workspace">
+      <aside class="sidebar" aria-label="Destinos e acessos">
+        <section class="directory" id="directory">
+          <div class="sheet-handle" aria-hidden="true"></div>
+          <div class="intro">
+            <div class="campus-label"><span></span> Campus Anápolis · Setor leste</div>
+            <h1>Explore o<br> campus.</h1>
+            <p>Passeie pelo campus e selecione um prédio para explorar sua fachada.</p>
+          </div>
+          <div class="directory-search">
+            <label for="destination-search">Buscar no campus</label>
+            <input id="destination-search" type="search" placeholder="Bloco, biblioteca, ginásio…" autocomplete="off" aria-controls="destination-list">
+            <p class="directory-count" id="destination-count" role="status"></p>
+          </div>
+          <div class="destination-list" id="destination-list"></div>
+        </section>
+        <section class="detail" id="detail" aria-labelledby="detail-name" hidden>
+          <div class="sheet-handle" aria-hidden="true"></div>
+          <button class="back-button" id="back-button" type="button"><span data-icon="arrow-left" aria-hidden="true"></span> Todos os destinos</button>
+          <div class="detail-heading">
+            <span class="destination-icon" id="detail-icon" aria-hidden="true"></span>
+            <div><p id="detail-kind"></p><h2 id="detail-name" tabindex="-1"></h2></div>
+          </div>
+          <div class="access-card" id="access-card">
+            <span class="access-icon" data-icon="door" aria-hidden="true"></span>
+            <div>
+              <h3>Referência de acesso</h3>
+              <span id="access-status" class="access-status"></span>
+              <p id="access-description"></p>
+            </div>
+          </div>
+          <figure class="entry-photo" id="entry-photo" hidden>
+            <img id="photo-image" alt="" loading="lazy" decoding="async">
+            <figcaption><a id="photo-credit" target="_blank" rel="noopener noreferrer"></a></figcaption>
+          </figure>
+          <p class="photo-note" id="photo-note" hidden></p>
+          <details class="sources" id="sources"><summary>Dados e fontes</summary><p id="detail-data"></p><ul id="detail-sources"></ul></details>
+        </section>
+        <footer class="sidebar-footer"><span data-icon="info" aria-hidden="true"></span><span>Protótipo com dados de demonstração</span></footer>
+      </aside>
+      <section class="map-stage" id="map-stage" aria-label="Mapa interativo do campus">
+        <div class="map" id="map"></div>
+        <div class="map satellite-map" id="satellite-map" hidden></div>
+        <div class="markers" id="markers">
+          <svg class="location-area" aria-hidden="true"><polygon id="location-area" hidden></polygon></svg>
+          <span class="location-dot" id="location-dot" aria-hidden="true" hidden></span>
+        </div>
+        <div class="map-top">
+          <div class="view-switch" role="group" aria-label="Vista do mapa">
+            <button type="button" id="view-3d" aria-pressed="true" aria-controls="map" disabled><span data-icon="layers" aria-hidden="true"></span><span id="view-name">Maquete 3D</span></button>
+            <button type="button" id="view-satellite" aria-pressed="false" aria-controls="satellite-map" disabled><span data-icon="satellite" aria-hidden="true"></span>Satélite</button>
+          </div>
+          <div class="map-orientation">
+            <button class="location-button" id="location-toggle" type="button" aria-label="Minha localização" aria-pressed="false" title="Minha localização" disabled><span data-icon="position" aria-hidden="true"></span><span>Minha localização</span></button>
+            <button class="compass" id="compass" type="button" aria-label="Orientar para o norte" title="Orientar para o norte"><span>N</span><span data-icon="north" id="north-arrow" aria-hidden="true"></span></button>
+          </div>
+        </div>
+        <div class="map-tools" id="map-tools" aria-label="Controles do mapa">
+          <div class="tool-group">
+            <button type="button" data-action="zoom-in" aria-label="Aproximar" title="Aproximar"><span data-icon="plus" aria-hidden="true"></span></button>
+            <button type="button" data-action="zoom-out" aria-label="Afastar" title="Afastar"><span data-icon="minus" aria-hidden="true"></span></button>
+          </div>
+          <div class="tool-group" id="rotate-control">
+            <button type="button" data-action="left" aria-label="Girar à esquerda" title="Girar à esquerda"><span data-icon="rotate-left" aria-hidden="true"></span></button>
+            <button type="button" data-action="right" aria-label="Girar à direita" title="Girar à direita"><span data-icon="rotate-right" aria-hidden="true"></span></button>
+          </div>
+          <div class="tool-group"><button type="button" data-action="reset" aria-label="Restaurar vista geral" title="Restaurar vista geral"><span data-icon="locate" aria-hidden="true"></span></button></div>
+          <div class="tool-group" id="street-control" hidden><button type="button" data-action="street" aria-label="Vista ao nível do campus" title="Vista ao nível do campus" aria-pressed="false"><span data-icon="walk" aria-hidden="true"></span></button></div>
+        </div>
+        <div class="map-status-stack">
+          <div class="location-panel" id="location-panel" hidden>
+            <div><p id="location-status" role="status"></p><p class="location-accuracy" id="location-accuracy" hidden></p></div>
+            <button id="location-recenter" type="button" hidden>Centralizar</button>
+          </div>
+          <p class="map-message" id="map-message" role="status" hidden></p>
+        </div>
+        <div class="map-bottom">
+          <div class="map-legend"><span><i class="legend-building"></i> Prédios do recorte</span><span><i class="legend-access"></i> Acesso a confirmar</span></div>
+          <div class="map-credits">
+            <a class="map-credit" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" title="© Contribuidores do OpenStreetMap · ODbL">© OpenStreetMap</a>
+            <a class="map-credit" id="satellite-credit" href="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer" target="_blank" rel="noopener noreferrer" hidden>Imagem © Esri, Vantor, Earthstar Geographics e GIS User Community</a>
+          </div>
+        </div>
+      </section>
+    </main>
+    <dialog id="about" aria-labelledby="about-title">
+      <div class="dialog-heading"><h2 id="about-title">Sobre o mapa</h2><form method="dialog"><button type="submit" aria-label="Fechar"><span data-icon="close" aria-hidden="true"></span></button></form></div>
+      <p>Arraste para girar. Use a roda do mouse ou o gesto de pinça para aproximar. Arraste com o botão direito ou com dois dedos para se deslocar. Selecione um prédio para ver sua fachada de perto.</p>
+      <p>Em Satélite, arraste para mover o mapa e selecione os mesmos balões. A imagem aérea da Esri precisa de conexão com a internet.</p>
+      <p>A base cartográfica é do OpenStreetMap. As fachadas e alturas são ilustrativas. Algumas divisões entre blocos e posições são aproximadas e os acessos marcados precisam de conferência.</p>
+      <ul id="about-sources"></ul>
+    </dialog>
+    <noscript>Ative o JavaScript para explorar o mapa.</noscript>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
