@@ -4,6 +4,8 @@ Maquete interativa do setor leste da UniEVANGÉLICA em Anápolis (GO), com **12 
 
 ## Abrir
 
+[Abrir o mapa online](https://mapa3d-unievangelica.vercel.app) e testar **Minha localização** no celular.
+
 Para ver a maquete sem servidor, abra o arquivo `dist/Campus-3D-UniEVANGELICA.html` no Chrome ou Edge. Se você tem apenas o código-fonte, instale as dependências com Node.js 22.12 ou superior e gere o HTML:
 
 ```sh
@@ -17,6 +19,8 @@ Para desenvolvimento, use `npm run dev` e abra [http://localhost:4173](http://lo
 
 - Alterne entre **Maquete 3D** e **Satélite** no topo do mapa. Os dois modos compartilham os balões, a seleção e as informações de acesso. Em Satélite, arraste para mover o mapa e use a roda, a pinça ou os botões para mudar o zoom.
 - A vista de satélite carrega imagens do [Esri World Imagery](https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer) pela internet, inclusive no HTML portátil. Quando a imagem estiver indisponível, a vista exibe os contornos locais. A maquete continua disponível offline.
+- Clique em **Minha localização** e autorize o navegador para ver o ponto azul e a área de precisão. O botão também encerra o acompanhamento. **Centralizar** reenquadra o ponto. Fora da área mapeada, **Ver no satélite** mostra a posição no mapa 2D.
+- A localização é comparada com os contornos dos blocos no navegador, sem salvar as coordenadas no projeto. O nome do bloco aparece como estimativa quando toda a área de precisão cabe em um único contorno. A identificação do pavimento fica fora do escopo. Para testar no celular, abra o site por HTTPS. Em desenvolvimento, use o localhost do próprio dispositivo.
 - Arraste para girar, use a roda ou a pinça para aproximar e arraste com o botão direito ou dois dedos para mover a vista.
 - A vista inicial enquadra os contornos dos prédios com a câmera mais baixa. No modo Canvas, a imagem ganha resolução assim que a câmera para de se mover.
 - Busque pelo código do bloco ou por nome. A lista mantém todos os destinos acessíveis quando as fichas do mapa se sobrepõem.

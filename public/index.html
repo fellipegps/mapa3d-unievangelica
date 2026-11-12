@@ -61,13 +61,19 @@
       <section class="map-stage" id="map-stage" aria-label="Mapa interativo do campus">
         <div class="map" id="map"></div>
         <div class="map satellite-map" id="satellite-map" hidden></div>
-        <div class="markers" id="markers"></div>
+        <div class="markers" id="markers">
+          <svg class="location-area" aria-hidden="true"><polygon id="location-area" hidden></polygon></svg>
+          <span class="location-dot" id="location-dot" aria-hidden="true" hidden></span>
+        </div>
         <div class="map-top">
           <div class="view-switch" role="group" aria-label="Vista do mapa">
             <button type="button" id="view-3d" aria-pressed="true" aria-controls="map" disabled><span data-icon="layers" aria-hidden="true"></span><span id="view-name">Maquete 3D</span></button>
             <button type="button" id="view-satellite" aria-pressed="false" aria-controls="satellite-map" disabled><span data-icon="satellite" aria-hidden="true"></span>Satélite</button>
           </div>
-          <button class="compass" id="compass" type="button" aria-label="Orientar para o norte" title="Orientar para o norte"><span>N</span><span data-icon="north" id="north-arrow" aria-hidden="true"></span></button>
+          <div class="map-orientation">
+            <button class="location-button" id="location-toggle" type="button" aria-label="Minha localização" aria-pressed="false" title="Minha localização" disabled><span data-icon="position" aria-hidden="true"></span><span>Minha localização</span></button>
+            <button class="compass" id="compass" type="button" aria-label="Orientar para o norte" title="Orientar para o norte"><span>N</span><span data-icon="north" id="north-arrow" aria-hidden="true"></span></button>
+          </div>
         </div>
         <div class="map-tools" id="map-tools" aria-label="Controles do mapa">
           <div class="tool-group">
@@ -81,7 +87,13 @@
           <div class="tool-group"><button type="button" data-action="reset" aria-label="Restaurar vista geral" title="Restaurar vista geral"><span data-icon="locate" aria-hidden="true"></span></button></div>
           <div class="tool-group" id="street-control" hidden><button type="button" data-action="street" aria-label="Vista ao nível do campus" title="Vista ao nível do campus" aria-pressed="false"><span data-icon="walk" aria-hidden="true"></span></button></div>
         </div>
-        <p class="map-message" id="map-message" role="status" hidden></p>
+        <div class="map-status-stack">
+          <div class="location-panel" id="location-panel" hidden>
+            <div><p id="location-status" role="status"></p><p class="location-accuracy" id="location-accuracy" hidden></p></div>
+            <button id="location-recenter" type="button" hidden>Centralizar</button>
+          </div>
+          <p class="map-message" id="map-message" role="status" hidden></p>
+        </div>
         <div class="map-bottom">
           <div class="map-legend"><span><i class="legend-building"></i> Prédios do recorte</span><span><i class="legend-access"></i> Acesso a confirmar</span></div>
           <div class="map-credits">

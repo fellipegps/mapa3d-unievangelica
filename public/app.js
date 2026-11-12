@@ -1,6 +1,7 @@
 import {icon} from './icons.js';
 import {createCampusMap} from './campus-map.js';
 import {createSatelliteMap} from './campus-satellite.js';
+import {trackCampusLocation} from './campus-location.js';
 
 const get = (id) => document.getElementById(id);
 const directory = get('directory');
@@ -64,7 +65,10 @@ async function init() {
   const buildingById = new Map(buildings.features.map((feature) => [feature.id, feature]));
   const pins = new Map();
   const cards = new Map();
+  const locationDot = get('location-dot');
+  const locationArea = get('location-area');
   let active, scene;
+  let locationFix;
   let view = '3d';
   let satellite, satelliteSelection, modelSelection;
   const currentScene = () => view === 'satellite' ? satellite : scene;
@@ -225,7 +229,17 @@ async function init() {
     if (mode !== view) return [];
     const markers = roofPins.map((pin) => ({...pin, priority: pin.id === active?.id ? 3 : pin.id === 'ginasio' ? 1 : 0}));
     if (active?.entry.coordinates) markers.push({element: entryLabel, coordinates: active.entry.coordinates, elevation: 0, priority: 2});
+    if (locationFix && (mode === 'satellite' || locationFix.nearCampus)) {
+      markers.push({element: locationDot, coordinates: locationFix.coordinates, elevation: 0, priority: 4, centered: true,
+        area: {ring: locationFix.ring, element: locationArea}});
+    }
     return markers;
+  }
+
+  function syncLocationMarker() {
+    locationDot.hidden = !locationFix || (view === '3d' && !locationFix.nearCampus);
+    locationDot.style.visibility = 'hidden';
+    locationArea.toggleAttribute('hidden', true);
   }
 
   function showMapMessage(message) {
@@ -260,6 +274,7 @@ async function init() {
     const showingSatellite = mode === 'satellite';
     pins.forEach((pin) => { pin.style.visibility = 'hidden'; });
     entryLabel.style.visibility = 'hidden';
+    syncLocationMarker();
     showMapMessage('');
     modelButton.setAttribute('aria-pressed', String(!showingSatellite));
     satelliteButton.setAttribute('aria-pressed', String(showingSatellite));
@@ -285,6 +300,27 @@ async function init() {
   satelliteButton.disabled = false;
   modelButton.addEventListener('click', () => switchView('3d'));
   satelliteButton.addEventListener('click', () => switchView('satellite'));
+
+  const locationButton = get('location-toggle');
+  trackCampusLocation({
+    button: locationButton, recenter: get('location-recenter'), panel: get('location-panel'),
+    status: get('location-status'), accuracyLabel: get('location-accuracy'),
+    buildings: buildings.features.filter(({properties}) => properties.kind === 'destination'),
+    campus: context.features.find(({properties}) => properties.kind === 'campus'),
+    names: new Map(destinations.map(({id, name}) => [id, name])),
+    onChange(fix) {
+      locationFix = fix;
+      syncLocationMarker();
+      if (view === 'satellite') satellite.refreshMarkers();
+      else scene.refresh();
+    },
+    onCenter(fix) {
+      if (!fix.nearCampus) switchView('satellite');
+      currentScene().focusLocation(fix);
+      if (view === '3d') resetStreetControl();
+    },
+  });
+  locationButton.disabled = false;
 }
 
 init().catch((error) => {

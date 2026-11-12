@@ -207,6 +207,12 @@ export function createDetailedCampus({element, buildings, context, destinations,
 
   return {
     refresh: requestRender,
+    focusLocation({coordinates, accuracy}) {
+      low = false;
+      const target = campusPosition(coordinates);
+      const distance = THREE.MathUtils.clamp(accuracy * 3, 120, 600);
+      moveTo({target, position: target.clone().addScaledVector(overviewDirection, distance)});
+    },
     select(destination) {
       if (active) models.get(active.id).outline.visible = false;
       active = destination;

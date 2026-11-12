@@ -13,6 +13,7 @@ const limitZoom = (zoom) => Math.min(maximumZoom, Math.max(minimumZoom, zoom));
 const tightScreen = (element) => element.clientWidth <= 600;
 const overviewZoom = (element) => tightScreen(element) ? 16.25 : 17;
 const focusZoom = (element) => tightScreen(element) ? 18.7 : 19.1;
+const locationZoom = (element, accuracy) => Math.max(overviewZoom(element), focusZoom(element) - Math.max(0, Math.log2(accuracy / 40)));
 const meanPosition = (a, b) => a.map((value, i) => (value + b[i]) / 2);
 
 function withTimeout(promise, milliseconds) {
@@ -106,6 +107,10 @@ function configure3D(library, options) {
     }),
     destroy() { resize.disconnect(); map.remove(); },
     refresh() { map.triggerRepaint(); },
+    focusLocation({coordinates, accuracy}) {
+      map.easeTo({center: coordinates, zoom: locationZoom(element, accuracy), pitch: initialPitch,
+        offset: [0, 0], duration: duration()});
+    },
     select(destination) {
       if (map.getSource('buildings')) {
         if (activeId) map.setFeatureState({source: 'buildings', id: activeId}, {selected: false});
@@ -281,6 +286,11 @@ function configureCanvas3D({element, buildings, context, markers, onBearing, onS
 
   return {
     refresh: draw,
+    focusLocation({coordinates, accuracy}) {
+      center = coordinates;
+      zoom = locationZoom(element, accuracy);
+      draw();
+    },
     select(destination) {
       activeId = destination?.id;
       if (!destination) return this.reset();

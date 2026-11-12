@@ -4,6 +4,9 @@ const imageryUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_I
 const tileSize = 256;
 const minimumZoom = 15;
 const maximumZoom = 21;
+const maximumLatitude = 85.05112878;
+const equatorMeters = 40075016.69;
+const worldLimits = {left: 0, right: 1, top: 0, bottom: 1};
 const maximumImageryZoom = 19;
 const overviewImageryZoom = 16;
 const minimumImageryZoom = 14;
@@ -12,7 +15,8 @@ const svgNamespace = 'http://www.w3.org/2000/svg';
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
 function mercator([longitude, latitude]) {
-  return {x: (longitude + 180) / 360, y: (1 - Math.asinh(Math.tan(latitude * Math.PI / 180)) / Math.PI) / 2};
+  const clampedLatitude = clamp(latitude, -maximumLatitude, maximumLatitude);
+  return {x: (longitude + 180) / 360, y: (1 - Math.asinh(Math.tan(clampedLatitude * Math.PI / 180)) / Math.PI) / 2};
 }
 
 function extent(points) {
@@ -39,6 +43,7 @@ export function createSatelliteMap({element, buildings, markers, onSelect, onSta
   const campus = extent(footprints.flatMap(({ring}) => ring));
   const panLimits = extent([mercator([-48.947, -16.299]), mercator([-48.940, -16.289])]);
   const tiles = new Map();
+  let limits = panLimits;
   let center, selected, zoom, frame;
 
   const scale = () => tileSize * 2 ** zoom;
@@ -46,14 +51,16 @@ export function createSatelliteMap({element, buildings, markers, onSelect, onSta
     if (!element.hidden && !frame) frame = requestAnimationFrame(draw);
   }
 
-  function requestTile(key, level, row, column) {
+  function requestTile(level, row, column) {
     const image = document.createElement('img');
     const tile = {image, level, row, column, state: 'pending'};
     image.alt = '';
     image.draggable = false;
     image.addEventListener('load', () => { tile.state = 'loaded'; queueDraw(); });
     image.addEventListener('error', () => { tile.state = 'failed'; queueDraw(); });
-    image.src = `${imageryUrl}/${key}?blankTile=false`;
+    const columns = 2 ** level;
+    const wrappedColumn = (column % columns + columns) % columns;
+    image.src = `${imageryUrl}/${level}/${row}/${wrappedColumn}?blankTile=false`;
     return tile;
   }
 
@@ -67,7 +74,7 @@ export function createSatelliteMap({element, buildings, markers, onSelect, onSta
       const key = `${sourceLevel}/${sourceRow}/${sourceColumn}`;
       let tile = tiles.get(key);
       if (!tile && (!pending || sourceLevel === overviewImageryZoom)) {
-        tile = requestTile(key, sourceLevel, sourceRow, sourceColumn);
+        tile = requestTile(sourceLevel, sourceRow, sourceColumn);
       }
       if (!tile) continue;
       tiles.delete(key);
@@ -85,7 +92,8 @@ export function createSatelliteMap({element, buildings, markers, onSelect, onSta
     const width = element.clientWidth;
     const height = element.clientHeight;
     const worldScale = scale();
-    const project = ({x, y}) => ({x: width / 2 + (x - center.x) * worldScale, y: height / 2 + (y - center.y) * worldScale});
+    const project = ({x, y}) => ({x: width / 2 + (x - center.x - Math.round(x - center.x)) * worldScale,
+      y: height / 2 + (y - center.y) * worldScale});
     const level = Math.min(maximumImageryZoom, Math.floor(zoom));
     const tileScale = 2 ** level;
     const size = worldScale / tileScale;
@@ -96,7 +104,7 @@ export function createSatelliteMap({element, buildings, markers, onSelect, onSta
     let uncovered = 0;
     let pending = false;
 
-    for (let row = Math.floor(top); row < Math.ceil(top + height / size); row++) {
+    for (let row = Math.max(0, Math.floor(top)); row < Math.min(tileScale, Math.ceil(top + height / size)); row++) {
       for (let column = Math.floor(left); column < Math.ceil(left + width / size); column++) {
         const result = findImagery(level, row, column, used);
         if (result.tile) visible.add(result.tile);
@@ -153,8 +161,8 @@ export function createSatelliteMap({element, buildings, markers, onSelect, onSta
   }
 
   function pan(dx, dy) {
-    center.x = clamp(center.x - dx / scale(), panLimits.left, panLimits.right);
-    center.y = clamp(center.y - dy / scale(), panLimits.top, panLimits.bottom);
+    center.x = clamp(center.x - dx / scale(), limits.left, limits.right);
+    center.y = clamp(center.y - dy / scale(), limits.top, limits.bottom);
     queueDraw();
   }
 
@@ -218,7 +226,18 @@ export function createSatelliteMap({element, buildings, markers, onSelect, onSta
 
   return {
     refresh,
+    refreshMarkers: queueDraw,
+    focusLocation({coordinates, accuracy, nearCampus}) {
+      limits = nearCampus ? panLimits : worldLimits;
+      center = mercator(coordinates);
+      const latitude = clamp(coordinates[1], -maximumLatitude, maximumLatitude);
+      const worldMeters = equatorMeters * Math.cos(latitude * Math.PI / 180);
+      const pixels = Math.max(80, Math.min(element.clientWidth, element.clientHeight) - 80);
+      zoom = clamp(Math.log2(pixels * worldMeters / (2 * Math.max(50, accuracy) * tileSize)), minimumZoom, 19.2);
+      queueDraw();
+    },
     select(destination) {
+      limits = panLimits;
       selected = destination?.id;
       const footprint = footprints.find(({id}) => id === selected);
       const points = footprint?.ring.slice();

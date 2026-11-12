@@ -16,6 +16,7 @@ const paths = {
   'rotate-left': '<path d="M3 4v6h6M3.6 10A8 8 0 1 1 5 17"/>',
   'rotate-right': '<path d="M21 4v6h-6m5.4 0A8 8 0 1 0 19 17"/>',
   locate: '<circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/>',
+  position: '<path d="m21 3-6 18-4-8-8-4 18-6z"/>',
   close: '<path d="m6 6 12 12M18 6 6 18"/>',
 };
 
