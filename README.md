@@ -15,6 +15,8 @@ Para desenvolvimento, use `npm run dev` e abra [http://localhost:4173](http://lo
 
 ## Navegar
 
+- Alterne entre **Maquete 3D** e **Satélite** no topo do mapa. Os dois modos compartilham os balões, a seleção e as informações de acesso. Em Satélite, arraste para mover o mapa e use a roda, a pinça ou os botões para mudar o zoom.
+- A vista de satélite carrega imagens do [Esri World Imagery](https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer) pela internet, inclusive no HTML portátil. Quando a imagem estiver indisponível, a vista exibe os contornos locais. A maquete continua disponível offline.
 - Arraste para girar, use a roda ou a pinça para aproximar e arraste com o botão direito ou dois dedos para mover a vista.
 - A vista inicial enquadra os contornos dos prédios com a câmera mais baixa. No modo Canvas, a imagem ganha resolução assim que a câmera para de se mover.
 - Busque pelo código do bloco ou por nome. A lista mantém todos os destinos acessíveis quando as fichas do mapa se sobrepõem.

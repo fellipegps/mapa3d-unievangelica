@@ -60,9 +60,13 @@
       </aside>
       <section class="map-stage" id="map-stage" aria-label="Mapa interativo do campus">
         <div class="map" id="map"></div>
+        <div class="map satellite-map" id="satellite-map" hidden></div>
         <div class="markers" id="markers"></div>
         <div class="map-top">
-          <span class="view-label"><span data-icon="layers" aria-hidden="true"></span><span id="view-name">Vista 3D</span></span>
+          <div class="view-switch" role="group" aria-label="Vista do mapa">
+            <button type="button" id="view-3d" aria-pressed="true" aria-controls="map" disabled><span data-icon="layers" aria-hidden="true"></span><span id="view-name">Maquete 3D</span></button>
+            <button type="button" id="view-satellite" aria-pressed="false" aria-controls="satellite-map" disabled><span data-icon="satellite" aria-hidden="true"></span>Satélite</button>
+          </div>
           <button class="compass" id="compass" type="button" aria-label="Orientar para o norte" title="Orientar para o norte"><span>N</span><span data-icon="north" id="north-arrow" aria-hidden="true"></span></button>
         </div>
         <div class="map-tools" id="map-tools" aria-label="Controles do mapa">
@@ -70,7 +74,7 @@
             <button type="button" data-action="zoom-in" aria-label="Aproximar" title="Aproximar"><span data-icon="plus" aria-hidden="true"></span></button>
             <button type="button" data-action="zoom-out" aria-label="Afastar" title="Afastar"><span data-icon="minus" aria-hidden="true"></span></button>
           </div>
-          <div class="tool-group">
+          <div class="tool-group" id="rotate-control">
             <button type="button" data-action="left" aria-label="Girar à esquerda" title="Girar à esquerda"><span data-icon="rotate-left" aria-hidden="true"></span></button>
             <button type="button" data-action="right" aria-label="Girar à direita" title="Girar à direita"><span data-icon="rotate-right" aria-hidden="true"></span></button>
           </div>
@@ -80,13 +84,17 @@
         <p class="map-message" id="map-message" role="status" hidden></p>
         <div class="map-bottom">
           <div class="map-legend"><span><i class="legend-building"></i> Prédios do recorte</span><span><i class="legend-access"></i> Acesso a confirmar</span></div>
-          <a class="map-credit" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" title="© Contribuidores do OpenStreetMap · ODbL">© OpenStreetMap</a>
+          <div class="map-credits">
+            <a class="map-credit" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" title="© Contribuidores do OpenStreetMap · ODbL">© OpenStreetMap</a>
+            <a class="map-credit" id="satellite-credit" href="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer" target="_blank" rel="noopener noreferrer" hidden>Imagem © Esri, Vantor, Earthstar Geographics e GIS User Community</a>
+          </div>
         </div>
       </section>
     </main>
     <dialog id="about" aria-labelledby="about-title">
       <div class="dialog-heading"><h2 id="about-title">Sobre o mapa</h2><form method="dialog"><button type="submit" aria-label="Fechar"><span data-icon="close" aria-hidden="true"></span></button></form></div>
       <p>Arraste para girar. Use a roda do mouse ou o gesto de pinça para aproximar. Arraste com o botão direito ou com dois dedos para se deslocar. Selecione um prédio para ver sua fachada de perto.</p>
+      <p>Em Satélite, arraste para mover o mapa e selecione os mesmos balões. A imagem aérea da Esri precisa de conexão com a internet.</p>
       <p>A base cartográfica é do OpenStreetMap. As fachadas e alturas são ilustrativas. Algumas divisões entre blocos e posições são aproximadas e os acessos marcados precisam de conferência.</p>
       <ul id="about-sources"></ul>
     </dialog>

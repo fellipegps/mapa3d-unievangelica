@@ -7,6 +7,7 @@ const paths = {
   building: '<path d="M4 21h16M6 21V4h12v17M9 8h.01M15 8h.01M9 12h.01m6 0h.01M10 21v-5h4v5"/>',
   door: '<path d="M3 21h18M6 21V4h12v17M14 12h.01"/>',
   layers: '<path d="m12 3 9 5-9 5-9-5 9-5Zm-9 9 9 5 9-5M3 16l9 5 9-5"/>',
+  satellite: '<circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4a12 12 0 0 1 0 16 12 12 0 0 1 0-16Z"/>',
   north: '<path fill="currentColor" stroke="none" d="M12 2 6 18l6-4 6 4z"/>',
   'arrow-left': '<path d="m11 6-6 6 6 6M5 12h14"/>',
   chevron: '<path d="m9 6 6 6-6 6"/>',

@@ -153,11 +153,19 @@ h1 {
 .campus-canvas:active { cursor: grabbing; }
 .tool-group button[aria-pressed="true"] { background: #315842; color: #f8f8f1; }
 .map:empty { background: radial-gradient(ellipse at 45% 48%, #e0e6cc, #eae8dc 72%); }
+.satellite-map { background: #c7cfbd; cursor: grab; touch-action: none; }
+.satellite-map:active { cursor: grabbing; }
+.satellite-imagery, .satellite-outlines { position: absolute; inset: 0; pointer-events: none; }
+.satellite-imagery { isolation: isolate; overflow: hidden; }
+.satellite-imagery img { position: absolute; top: 0; left: 0; user-select: none; }
+.satellite-outlines { width: 100%; height: 100%; }
+.satellite-outlines polygon { fill: #f9f4db; stroke: #526c58; stroke-width: 1.5; pointer-events: visiblePainted; cursor: pointer; }
+.satellite-outlines .selected { fill: #a7edab55; stroke: #f3ffe1; stroke-width: 2.5; }
 .markers { z-index: 1; pointer-events: none; }
 .map-top, .map-bottom { position: absolute; z-index: 2; left: 19px; right: 19px; display: flex; justify-content: space-between; align-items: center; gap: 8px; pointer-events: none; }
 .map-top { top: 18px; align-items: flex-start; }
 .map-bottom { bottom: 16px; }
-.view-label, .map-legend, .map-credit {
+.map-legend, .map-credit {
   box-shadow: var(--shadow);
   background: #fcfcf4;
   border: 1px solid #fdfcf4;
@@ -170,7 +178,31 @@ h1 {
   font-weight: 650;
   line-height: 1;
 }
-.view-label svg { width: 17px; height: 17px; }
+.view-switch {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  background: #fcfcf4;
+  border: 1px solid #fdfcf4;
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  pointer-events: auto;
+}
+.view-switch button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 35px;
+  padding: 0 9px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+.view-switch button[aria-pressed="true"] { background: #315842; color: #fcfcf4; }
+.view-switch svg { width: 17px; height: 17px; }
 .compass {
   width: 43px;
   min-height: 51px;
@@ -206,6 +238,10 @@ h1 {
 .legend-access { border-radius: 50%; border: 1.5px dashed #985c22; background: #fff2ce; }
 .map-legend .legend-access.confirmed { border: 1.5px solid #315842; background: #e5f0de; }
 .map-credit { color: #536054; font-weight: 550; box-shadow: none; pointer-events: auto; text-decoration: underline; white-space: nowrap; }
+.map-credits { display: grid; justify-items: end; gap: 4px; min-width: 0; }
+#satellite-credit { white-space: normal; text-align: right; line-height: 1.2; }
+.map-stage:has(.satellite-map:not([hidden])) .map-tools { bottom: 96px; }
+.map-stage:has(.satellite-map:not([hidden])) .map-bottom { align-items: flex-end; }
 .map-message {
   position: absolute;
   z-index: 2;
@@ -348,14 +384,15 @@ dialog::backdrop { background: #27352770; }
   .tool-group button { width: 43px; height: 40px; }
   .tool-group svg { width: 17px; height: 17px; }
   .compass { width: 45px; min-height: 43px; }
-  .view-label, .map-legend, .map-credit { padding: 7px; font-size: 9px; gap: 5px; }
-  .view-label svg { width: 14px; height: 14px; }
+  .map-legend, .map-credit { padding: 7px; font-size: 9px; gap: 5px; }
+  .view-switch button { min-height: 36px; }
+  .view-switch svg { width: 15px; height: 15px; }
   .map-legend > span { gap: 3px; }
   .map-legend i { width: 8px; height: 8px; }
   .map-pin { min-height: 29px; min-width: 29px; padding: 0 6px; font-size: 11px; }
   .map-pin > span:first-child { width: 19px; height: 21px; }
   .map-pin svg { width: 14px; height: 14px; }
-  .map-message { left: 10px; top: 43px; }
+  .map-message { left: 10px; top: 59px; }
   .back-button { min-height: 32px; }
   .detail-heading { margin: 5px 0 10px; gap: 8px; }
   .detail-heading .destination-icon { width: 34px; height: 34px; }

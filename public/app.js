@@ -1,5 +1,6 @@
 import {icon} from './icons.js';
 import {createCampusMap} from './campus-map.js';
+import {createSatelliteMap} from './campus-satellite.js';
 
 const get = (id) => document.getElementById(id);
 const directory = get('directory');
@@ -64,6 +65,15 @@ async function init() {
   const pins = new Map();
   const cards = new Map();
   let active, scene;
+  let view = '3d';
+  let satellite, satelliteSelection, modelSelection;
+  const currentScene = () => view === 'satellite' ? satellite : scene;
+
+  function selectInView(destination) {
+    currentScene()?.select(destination);
+    if (view === 'satellite') satelliteSelection = destination;
+    else modelSelection = destination;
+  }
 
   const entryLabel = document.createElement('div');
   entryLabel.className = 'entry-pin';
@@ -108,7 +118,7 @@ async function init() {
     directory.hidden = true;
     detail.parentElement.scrollTop = 0;
     get('detail-name').focus({preventScroll: true});
-    scene?.select(destination);
+    selectInView(destination);
   }
 
   for (const destination of destinations) {
@@ -175,21 +185,25 @@ async function init() {
     pins.forEach((pin) => pin.setAttribute('aria-pressed', 'false'));
     directory.hidden = false;
     detail.hidden = true;
-    scene?.select(null);
-    get('street-control').querySelector('button').setAttribute('aria-pressed', 'false');
-    if (get('map-stage').dataset.view === 'architecture') get('view-name').textContent = 'Maquete 3D';
+    selectInView(undefined);
+    if (view === '3d') resetStreetControl();
     if (restoreFocus && previous) {
       const button = cards.get(previous.id);
       (button.hidden ? search : button).focus({preventScroll: true});
     }
   }
 
+  function resetStreetControl() {
+    get('street-control').querySelector('button').setAttribute('aria-pressed', 'false');
+    if (get('map-stage').dataset.view === 'architecture') get('view-name').textContent = 'Maquete 3D';
+  }
+
   get('back-button').addEventListener('click', () => resetSelection(true));
   compass.addEventListener('click', () => scene?.north());
   mapTools.addEventListener('click', (event) => {
     switch (event.target.closest('button')?.dataset.action) {
-      case 'zoom-in': scene?.zoom(.55); break;
-      case 'zoom-out': scene?.zoom(-.55); break;
+      case 'zoom-in': currentScene()?.zoom(.55); break;
+      case 'zoom-out': currentScene()?.zoom(-.55); break;
       case 'left': scene?.rotate(-30); break;
       case 'right': scene?.rotate(30); break;
       case 'reset': resetSelection(false); break;
@@ -207,15 +221,23 @@ async function init() {
     elevation: buildingById.get(destination.id).properties.heightMeters + 3,
   }));
 
+  function visibleMarkers(mode) {
+    if (mode !== view) return [];
+    const markers = roofPins.map((pin) => ({...pin, priority: pin.id === active?.id ? 3 : pin.id === 'ginasio' ? 1 : 0}));
+    if (active?.entry.coordinates) markers.push({element: entryLabel, coordinates: active.entry.coordinates, elevation: 0, priority: 2});
+    return markers;
+  }
+
+  function showMapMessage(message) {
+    if (mapMessage.textContent !== message) mapMessage.textContent = message;
+    mapMessage.hidden = !message;
+  }
+
   const result = await createCampusMap({
     element: get('map'), buildings, context, destinations, offline: Boolean(campusData),
     onSelect: select,
     onBearing: (bearing) => { get('north-arrow').style.rotate = -bearing + 'deg'; },
-    markers: () => {
-      const markers = roofPins.map((pin) => ({...pin, priority: pin.id === active?.id ? 3 : pin.id === 'ginasio' ? 1 : 0}));
-      if (active?.entry.coordinates) markers.push({element: entryLabel, coordinates: active.entry.coordinates, elevation: 0, priority: 2});
-      return markers;
-    },
+    markers: () => visibleMarkers('3d'),
   });
   scene = result.scene;
   get('map-stage').dataset.view = result.mode;
@@ -226,8 +248,43 @@ async function init() {
   if (result.mode === 'canvas-3d') get('view-name').textContent = 'Vista 3D local';
   mapTools.querySelectorAll('button').forEach((button) => { button.disabled = false; });
   compass.disabled = false;
-  if (active) scene.select(active);
+  if (active) selectInView(active);
   scene.refresh();
+
+  const modelButton = get('view-3d');
+  const satelliteButton = get('view-satellite');
+  const satelliteElement = get('satellite-map');
+  function switchView(mode) {
+    if (view === mode) return;
+    view = mode;
+    const showingSatellite = mode === 'satellite';
+    pins.forEach((pin) => { pin.style.visibility = 'hidden'; });
+    entryLabel.style.visibility = 'hidden';
+    showMapMessage('');
+    modelButton.setAttribute('aria-pressed', String(!showingSatellite));
+    satelliteButton.setAttribute('aria-pressed', String(showingSatellite));
+    get('map').hidden = showingSatellite;
+    satelliteElement.hidden = !showingSatellite;
+    get('rotate-control').hidden = showingSatellite;
+    get('street-control').hidden = showingSatellite || result.mode !== 'architecture';
+    get('satellite-credit').hidden = !showingSatellite;
+    compass.hidden = showingSatellite;
+
+    if (showingSatellite && !satellite) {
+      satellite = createSatelliteMap({element: satelliteElement, buildings, onSelect: select, onStatus: showMapMessage,
+        markers: () => visibleMarkers('satellite')});
+      selectInView(active);
+    } else if (active !== (showingSatellite ? satelliteSelection : modelSelection)) {
+      selectInView(active);
+      if (!showingSatellite && !active) resetStreetControl();
+    }
+    currentScene().refresh();
+  }
+
+  modelButton.disabled = false;
+  satelliteButton.disabled = false;
+  modelButton.addEventListener('click', () => switchView('3d'));
+  satelliteButton.addEventListener('click', () => switchView('satellite'));
 }
 
 init().catch((error) => {
