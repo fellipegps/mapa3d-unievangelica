@@ -1,0 +1,11 @@
+{
+  "name": "campus-3d-unievangelica",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": { "dev": "node server.mjs", "start": "node server.mjs", "build:portable": "node scripts/build-portable.mjs" },
+  "engines": { "node": ">=22.12.0" },
+  "dependencies": { "three": "0.186.1" },
+  "devDependencies": { "rolldown": "1.2.12" },
+  "optionalDependencies": { "maplibre-gl": "6.17.0" }
+}
