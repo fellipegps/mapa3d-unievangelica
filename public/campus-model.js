@@ -109,6 +109,26 @@ function edgesOf(points) {
   });
 }
 
+function subdivisionEdgeKey(osmWayId, ring, index) {
+  const endpoints = [ring[index].join(','), ring[index + 1].join(',')].sort();
+  return `${osmWayId}:${endpoints.join('|')}`;
+}
+
+function sharedSubdivisionEdges(features) {
+  const seen = new Set();
+  const shared = new Set();
+  for (const {geometry, properties} of features) {
+    if (properties.geometryStatus !== 'subdivision') continue;
+    const ring = geometry.coordinates[0];
+    for (let index = 0; index < ring.length - 1; index++) {
+      const key = subdivisionEdgeKey(properties.osmWayId, ring, index);
+      if (seen.has(key)) shared.add(key);
+      seen.add(key);
+    }
+  }
+  return shared;
+}
+
 function atEdge(edge, along, outward = 0) {
   return edge.start.clone().addScaledVector(edge.along, along).addScaledVector(edge.outward, outward);
 }
@@ -126,7 +146,7 @@ function accessEdge(edges, point) {
   return closest;
 }
 
-function buildArchitecture(group, points, profile, height, access) {
+function buildArchitecture(group, {points, edges, profile, height, access, roofDetails}) {
   const details = boxBatches(group);
   const frames = material('#293c39');
   const glass = material('#547878', {roughness: .25, metalness: .17});
@@ -135,7 +155,6 @@ function buildArchitecture(group, points, profile, height, access) {
   const accent = material(profile.accent);
   const coping = material(profile.wall);
   const metal = material('#a9b1a7');
-  const edges = edgesOf(points);
   const entrance = accessEdge(edges, access);
   const hall = profile.windows === 'hall';
   const levels = profile.levels ?? THREE.MathUtils.clamp(Math.round(height / 3.7), 1, 5);
@@ -188,8 +207,8 @@ function buildArchitecture(group, points, profile, height, access) {
     }
   }
 
-  const center = points.reduce((total, point) => total.add(point), new THREE.Vector3()).divideScalar(points.length);
-  if (!hall) {
+  if (roofDetails && !hall) {
+    const center = points.reduce((total, point) => total.add(point), new THREE.Vector3()).divideScalar(points.length);
     details.add(coping, 5.4, 1.65, 4.7, center.x + 2, height + .82, center.z - 2);
     details.add(metal, 2.9, .62, 1.7, center.x - 3, height + .31, center.z + 1.7);
     details.add(frames, 2.6, .21, 1.4, center.x - 3, height + .70, center.z + 1.7);
@@ -292,8 +311,10 @@ export function createCampusModel({buildings, context, destinations}) {
   const pickMeshes = [];
   const blockers = [];
   const destinationsById = new Map(destinations.map((destination) => [destination.id, destination]));
+  const sharedEdges = sharedSubdivisionEdges(buildings.features);
   for (const {id, geometry, properties} of buildings.features) {
-    const points = geometry.coordinates[0].slice(0, -1).map((point) => campusPosition(point));
+    const ring = geometry.coordinates[0];
+    const points = ring.slice(0, -1).map((point) => campusPosition(point));
     const {heightMeters: height, kind} = properties;
     const destination = destinationsById.get(id);
     const profile = profiles[id] ?? (destination ? campusProfile : contextProfile);
@@ -311,7 +332,10 @@ export function createCampusModel({buildings, context, destinations}) {
     scene.add(group);
     blockers.push(body);
     if (!destination) continue;
-    const entrance = buildArchitecture(group, points, profile, wallHeight, approach);
+    const isSubdivision = properties.geometryStatus === 'subdivision';
+    const edges = edgesOf(points).filter((_, index) =>
+      !isSubdivision || !sharedEdges.has(subdivisionEdgeKey(properties.osmWayId, ring, index)));
+    const entrance = buildArchitecture(group, {points, edges, profile, height: wallHeight, access: approach, roofDetails: !isSubdivision});
     const outline = new THREE.LineLoop(
       new THREE.BufferGeometry().setFromPoints(points.map(({x, z}) => new THREE.Vector3(x, height + 1.18, z))),
       new THREE.LineBasicMaterial({color: '#92f8ad'}),
