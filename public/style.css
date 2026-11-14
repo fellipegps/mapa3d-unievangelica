@@ -351,6 +351,14 @@ h1 {
 .map-pin:hover { background: #edf2e6; }
 .map-pin[aria-pressed="true"] { z-index: 2; border-color: #315842; color: #fffefa; background: #315842; }
 .map-pin[aria-pressed="true"] > span:first-child { color: #f8faef; background: #ffffff27; }
+.map-detail { position: absolute; z-index: 3; left: var(--map-detail-left, 12px); top: var(--map-detail-top, 60px); width: 278px; max-width: calc(100% - 84px); max-height: calc(100% - 112px); overflow: auto; padding: 10px 12px; border: 1px solid #d9e4d3; border-radius: 11px; background: #fcfcf4; box-shadow: var(--shadow); }
+.map-detail-header { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.map-detail h2 { margin: 0; font-size: 15px; }
+.map-detail p, .map-detail ul { margin: 4px 0 0; font-size: 12px; line-height: 1.5; }
+.map-detail ul { padding-left: 17px; }
+.map-detail li + li { margin-top: 4px; }
+.map-detail button { width: 32px; height: 32px; flex: none; display: grid; place-items: center; border: 0; border-radius: 7px; background: #edf2e6; color: #315842; }
+.map-detail button svg { width: 17px; height: 17px; }
 .entry-pin {
   z-index: 3;
   border: 1px dashed #895019;
@@ -380,6 +388,9 @@ h1 {
 .detail-heading p { margin: 0 0 4px; color: var(--muted); font-size: 11px; font-weight: 700; }
 .detail-heading h2 { margin: 0; font-size: clamp(20px, 2.2vw, 27px); letter-spacing: -.045em; line-height: 1.1; }
 .detail-heading h2:focus { outline: 0; }
+.detail-labs { margin-bottom: 10px; padding: 10px 12px; background: #edf2e6; border: 1px solid #d9e4d3; border-radius: 11px; }
+.detail-labs h3 { margin: 0 0 5px; font-size: 12px; }
+.detail-labs ul { margin: 0; padding-left: 16px; font-size: 12px; line-height: 1.55; }
 .access-card { display: grid; grid-template-columns: auto 1fr; gap: 9px; padding: 13px; background: #f6efdf; border: 1px solid #ebe0c9; border-radius: 11px; }
 .access-card.confirmed { background: #edf2e6; border-color: #d9e4d3; }
 .access-icon { color: #805320; padding-top: 1px; }
@@ -434,6 +445,8 @@ dialog::backdrop { background: #27352770; }
   .map-top, .map-bottom { left: 10px; right: 10px; }
   .map-top { top: 10px; }
   .map-bottom { bottom: 18px; }
+  .map-detail { left: 10px; right: 62px; top: auto; bottom: 61px; width: auto; max-width: none; max-height: calc(100% - 120px); }
+  .map-stage:has(.satellite-map:not([hidden])) .map-detail { bottom: 90px; max-height: calc(100% - 150px); }
   .map-tools { right: 10px; bottom: 53px; gap: 5px; }
   .tool-group button { width: 43px; height: 40px; }
   .tool-group svg { width: 17px; height: 17px; }

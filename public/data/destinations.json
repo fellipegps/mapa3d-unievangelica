@@ -87,6 +87,9 @@
       "name": "Bloco A",
       "shortName": "A",
       "kind": "Secretaria Geral · UniCUIDAR",
+      "laboratories": [
+        "Laboratório 12 · Piso 1 · Sala A 114"
+      ],
       "sector": "leste",
       "icon": "building",
       "labelCoordinates": [
@@ -124,6 +127,10 @@
       "name": "Bloco B1 · Biblioteca Central",
       "shortName": "B1",
       "kind": "Biblioteca Central",
+      "laboratories": [
+        "Laboratório 09 · Piso 2 · Sala B1 301",
+        "Laboratório 10 · Piso 2 · Sala B1 302"
+      ],
       "sector": "leste",
       "icon": "book",
       "labelCoordinates": [
@@ -162,6 +169,9 @@
       "name": "Bloco B2",
       "shortName": "B2",
       "kind": "Enfermagem",
+      "laboratories": [
+        "Laboratório 11 · Piso 4 · Sala B2 410/411"
+      ],
       "sector": "leste",
       "icon": "building",
       "labelCoordinates": [
@@ -192,6 +202,9 @@
       "name": "Bloco C",
       "shortName": "C",
       "kind": "Secretaria de Odontologia",
+      "laboratories": [
+        "Laboratório 04 · Piso 4 · Sala C 403"
+      ],
       "sector": "leste",
       "icon": "building",
       "labelCoordinates": [
@@ -259,6 +272,11 @@
       "name": "Bloco E",
       "shortName": "E",
       "kind": "Auditório Carlos Hassel Mendes",
+      "laboratories": [
+        "Laboratório 02 · Piso 2 · Sala E 208",
+        "Laboratório 05 · Piso 2 · Sala E 209",
+        "Laboratório 06 · Piso 2 · Sala E212"
+      ],
       "sector": "leste",
       "icon": "building",
       "labelCoordinates": [
@@ -315,9 +333,13 @@
     },
     {
       "id": "bloco-g",
-      "name": "Bloco G",
-      "shortName": "G",
+      "name": "Bloco J",
+      "shortName": "J",
       "kind": "Referência histórica de localização",
+      "laboratories": [
+        "Laboratório 03 · Piso 2 · Sala J 204",
+        "Laboratório DG · Piso 2 · Sala J205"
+      ],
       "sector": "leste",
       "icon": "building",
       "labelCoordinates": [
@@ -332,15 +354,14 @@
       "entry": {
         "coordinates": null,
         "status": "unknown",
-        "description": "A referência histórica situa o Bloco G em frente à área do Bloco H. A associação do nome a este volume é aproximada e precisa de conferência no campus.",
+        "description": "O Bloco J está representado em frente à área do Bloco H. A posição é aproximada e precisa de conferência no campus.",
         "sources": [],
         "photo": null
       },
       "photoNote": null,
       "sources": [
         "guia",
-        "osm",
-        "blocoG"
+        "osm"
       ]
     },
     {
@@ -348,6 +369,9 @@
       "name": "Bloco H",
       "shortName": "H",
       "kind": "Área acadêmica",
+      "laboratories": [
+        "Laboratório EngSoft · Piso 2 · Sala H 201/202"
+      ],
       "sector": "leste",
       "icon": "building",
       "labelCoordinates": [
@@ -379,6 +403,10 @@
       "name": "Bloco I",
       "shortName": "I",
       "kind": "Área acadêmica",
+      "laboratories": [
+        "Laboratório 07 · Piso 2 · Sala I 207",
+        "Laboratório 08 · Piso 2 · Sala I206"
+      ],
       "sector": "leste",
       "icon": "building",
       "labelCoordinates": [
@@ -446,6 +474,9 @@
       "name": "Centro Tecnológico",
       "shortName": "CT",
       "kind": "Área acadêmica · setor leste",
+      "laboratories": [
+        "Laboratório CT"
+      ],
       "sector": "leste",
       "icon": "building",
       "labelCoordinates": [
