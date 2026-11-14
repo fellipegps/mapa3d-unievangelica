@@ -9,6 +9,7 @@ const detail = get('detail');
 const markersElement = get('markers');
 const about = get('about');
 const mapMessage = get('map-message');
+const mapDetail = get('map-detail');
 const search = get('destination-search');
 const count = get('destination-count');
 const embeddedData = get('campus-data');
@@ -98,6 +99,20 @@ async function init() {
     get('detail-icon').innerHTML = icon(destination.icon);
     get('detail-kind').textContent = destination.kind;
     get('detail-name').textContent = destination.name;
+    const laboratories = destination.laboratories ?? [];
+    get('map-detail-name').textContent = destination.name;
+    get('map-detail-kind').textContent = destination.kind;
+    get('map-detail-kind').hidden = laboratories.length > 0;
+    get('map-detail-labs').hidden = laboratories.length === 0;
+    get('detail-labs').hidden = laboratories.length === 0;
+    const labItems = laboratories.map((description) => {
+      const item = document.createElement('li');
+      item.textContent = description;
+      return item;
+    });
+    get('detail-lab-list').replaceChildren(...labItems);
+    get('map-detail-labs').replaceChildren(...labItems.map((item) => item.cloneNode(true)));
+    mapDetail.hidden = false;
     get('access-description').textContent = destination.entry.description;
     get('access-status').textContent = status;
     get('access-card').classList.toggle('confirmed', confirmed);
@@ -153,6 +168,7 @@ async function init() {
     pin.setAttribute('aria-label', destination.name);
     pin.title = destination.name;
     pin.setAttribute('aria-pressed', 'false');
+    pin.setAttribute('aria-controls', 'map-detail');
     pin.textContent = destination.shortName;
     pin.addEventListener('click', () => select(destination.id));
     pins.set(destination.id, pin);
@@ -183,6 +199,7 @@ async function init() {
   function resetSelection(restoreFocus) {
     const previous = active;
     active = undefined;
+    mapDetail.hidden = true;
     entryLabel.hidden = true;
     accessLegend.classList.remove('confirmed');
     accessLegendLabel.lastChild.textContent = ' Acesso a confirmar';
@@ -203,6 +220,10 @@ async function init() {
   }
 
   get('back-button').addEventListener('click', () => resetSelection(true));
+  get('map-detail-close').addEventListener('click', () => resetSelection(true));
+  get('map-stage').addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && !mapDetail.hidden) resetSelection(true);
+  });
   compass.addEventListener('click', () => scene?.north());
   mapTools.addEventListener('click', (event) => {
     switch (event.target.closest('button')?.dataset.action) {
@@ -227,7 +248,9 @@ async function init() {
 
   function visibleMarkers(mode) {
     if (mode !== view) return [];
-    const markers = roofPins.map((pin) => ({...pin, priority: pin.id === active?.id ? 3 : pin.id === 'ginasio' ? 1 : 0}));
+    const markers = roofPins.map((pin) => pin.id === active?.id
+      ? {...pin, priority: 3, popup: mapDetail}
+      : {...pin, priority: pin.id === 'ginasio' ? 1 : 0});
     if (active?.entry.coordinates) markers.push({element: entryLabel, coordinates: active.entry.coordinates, elevation: 0, priority: 2});
     if (locationFix && (mode === 'satellite' || locationFix.nearCampus)) {
       markers.push({element: locationDot, coordinates: locationFix.coordinates, elevation: 0, priority: 4, centered: true,

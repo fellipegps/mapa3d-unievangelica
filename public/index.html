@@ -41,6 +41,10 @@
             <span class="destination-icon" id="detail-icon" aria-hidden="true"></span>
             <div><p id="detail-kind"></p><h2 id="detail-name" tabindex="-1"></h2></div>
           </div>
+          <section class="detail-labs" id="detail-labs" aria-labelledby="detail-labs-heading" hidden>
+            <h3 id="detail-labs-heading">Laboratórios</h3>
+            <ul id="detail-lab-list"></ul>
+          </section>
           <div class="access-card" id="access-card">
             <span class="access-icon" data-icon="door" aria-hidden="true"></span>
             <div>
@@ -65,6 +69,14 @@
           <svg class="location-area" aria-hidden="true"><polygon id="location-area" hidden></polygon></svg>
           <span class="location-dot" id="location-dot" aria-hidden="true" hidden></span>
         </div>
+        <section class="map-detail" id="map-detail" aria-labelledby="map-detail-name" hidden>
+          <div class="map-detail-header">
+            <h2 id="map-detail-name"></h2>
+            <button id="map-detail-close" type="button" aria-label="Fechar ficha"><span data-icon="close" aria-hidden="true"></span></button>
+          </div>
+          <p id="map-detail-kind" hidden></p>
+          <ul id="map-detail-labs" aria-label="Laboratórios" hidden></ul>
+        </section>
         <div class="map-top">
           <div class="view-switch" role="group" aria-label="Vista do mapa">
             <button type="button" id="view-3d" aria-pressed="true" aria-controls="map" disabled><span data-icon="layers" aria-hidden="true"></span><span id="view-name">Maquete 3D</span></button>
